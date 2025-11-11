@@ -23,7 +23,6 @@ fun VistaClima(navController: NavController)
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally)
     {
-
         Button(
             onClick = {
                 navController.navigate("VistaBuscador")
@@ -31,9 +30,7 @@ fun VistaClima(navController: NavController)
         ) {
             Text(text = "Ir a la vista del Buscador")
         }
-
     }
-
 
 
 
