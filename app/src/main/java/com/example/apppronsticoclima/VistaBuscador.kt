@@ -46,12 +46,15 @@ fun VistaBuscador(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally)
     {
 
-        Button(
-            onClick = {
-                navController.navigate("VistaClima")
-            }
-        ) {
-            Text(text = "Ir a la vista del Clima")
+        Button(onClick = {
+            //--- Valores de prueba ---
+            val lat = -34.61f
+            val lon = -58.38f
+            val nombre = "Buenos Aires "
+            //-------------------------
+            navController.navigate("VistaClima/$lat/$lon/$nombre")
+        }) {
+            Text(text = "Ir a Buenos Aires (Prueba)")
         }
 
     }
