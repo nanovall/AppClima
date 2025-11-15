@@ -6,8 +6,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.apppronsticoclima.VistaBuscador
 import com.example.apppronsticoclima.Presentation.Clima.ClimaPage
+import com.example.apppronsticoclima.Presentation.ciudades.CiudadesPage
 
 @Composable
 fun AppNavigation(navController: NavHostController) {
@@ -15,7 +15,7 @@ fun AppNavigation(navController: NavHostController) {
         navController = navController,
         startDestination = "VistaBuscador"
     ) {
-        composable("VistaBuscador") { VistaBuscador(navController) }
+        composable("VistaBuscador") { CiudadesPage(navController) }
         composable(
             route = "VistaClima/{lat}/{lon}/{nombre}",
             arguments = listOf(
@@ -33,5 +33,7 @@ fun AppNavigation(navController: NavHostController) {
                 lat = lat,
                 lon = lon,
                 nombre = nombre
-            )        }    }
+            )
+        }
+    }
 }
