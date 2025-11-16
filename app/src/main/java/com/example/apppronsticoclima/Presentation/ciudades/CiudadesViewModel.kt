@@ -8,12 +8,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.apppronsticoclima.Repository.Repositorio
+import com.example.apppronsticoclima.Repository.UserPreferences
 import com.example.apppronsticoclima.Repository.modelos.Ciudad
 import kotlinx.coroutines.launch
 
 class CiudadesViewModel(
     val repositorio: Repositorio,
-    val navController: NavController
+    val navController: NavController,
+    private val userPreferences: UserPreferences
 ) : ViewModel(){
 
     var uiState by mutableStateOf<CiudadesEstado>(CiudadesEstado.Vacio)
@@ -45,6 +47,8 @@ class CiudadesViewModel(
     }
 
     private fun seleccionar(ciudad: Ciudad){
+        userPreferences.guardarCiudadSeleccionada(ciudad)
+
         val lat = ciudad.lat
         val lon = ciudad.lon
         val nombre = ciudad.name
@@ -60,12 +64,13 @@ class CiudadesViewModel(
 
 class CiudadesViewModelFactory(
     private val repositorio: Repositorio,
-    private val navController: NavController
+    private val navController: NavController,
+    private val userPreferences: UserPreferences
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(CiudadesViewModel::class.java)) {
-            return CiudadesViewModel(repositorio,navController) as T
+            return CiudadesViewModel(repositorio,navController, userPreferences) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
