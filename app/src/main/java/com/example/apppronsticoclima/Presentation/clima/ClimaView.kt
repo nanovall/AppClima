@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -14,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -111,35 +115,43 @@ private fun WeatherContent(state: ClimaEstado.Exitoso) {
 }
 
 @Composable
-private fun WeatherTopBar(cityName: String, onBackClick: () -> Unit) {
+fun WeatherTopBar(cityName: String, onBackClick: () -> Unit) {
     Surface(
         color = colorPrimary,
-        modifier = Modifier.fillMaxWidth(),
-        shadowElevation = 4.dp
+        shadowElevation = 4.dp,
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 24.dp)
-                .clickable(onClick = onBackClick),
-            verticalAlignment = Alignment.CenterVertically
+                .statusBarsPadding()
+                .padding(vertical = 12.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = "",
-                color = Color.White,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.width(16.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onBackClick) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Volver",
+                        tint = Color.White
+                    )
+                }
+            }
             Text(
                 text = cityName,
                 color = Color.White,
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.Center)
             )
         }
     }
 }
+
 
 @Composable
 private fun CurrentWeatherCard(state: ClimaEstado.Exitoso) {
@@ -154,7 +166,7 @@ private fun CurrentWeatherCard(state: ClimaEstado.Exitoso) {
                 .fillMaxWidth()
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
 
             Text(
@@ -174,7 +186,7 @@ private fun CurrentWeatherCard(state: ClimaEstado.Exitoso) {
                 color = colorTextSecondary
             )
             Divider(
-                modifier = Modifier.padding(vertical = 16.dp),
+                modifier = Modifier.padding(vertical = 15.dp),
                 color = colorScreenBackground
             )
             Row(
@@ -384,14 +396,13 @@ private fun ShareButton(onClick: () -> Unit) {
             colors = ButtonDefaults.buttonColors(containerColor = colorPrimary),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .navigationBarsPadding()
         ) {
-
-            Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "Compartir pronóstico",
                 color = Color.White,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
             )
         }
     }
