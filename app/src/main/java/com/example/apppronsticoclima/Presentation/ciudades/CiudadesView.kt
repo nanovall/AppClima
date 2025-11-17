@@ -43,7 +43,7 @@ fun CiudadesView(
                 .padding(paddingValues)
                 .background(
                     brush = androidx.compose.ui.graphics.Brush.verticalGradient(
-                        colors = listOf(Color(0xFF64B5F6), Color(0xFF42A5F5))
+                        colors = listOf(Color(0xFF4A90E2), Color(0xFF42A5F5))
                     )
                 )
         ) {

@@ -1,23 +1,22 @@
 package com.example.apppronsticoclima.Presentation.Clima
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
+import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -27,7 +26,7 @@ private val colorCardBackground = Color(0xFFFFFFFF)
 private val colorScreenBackground = Color(0xFFF0F4F8)
 private val colorTextPrimary = Color(0xFF333333)
 private val colorTextSecondary = Color(0xFF666666)
-private val colorGridBackground = Color(0xFFF7F9FC)
+private val colorGridBackground = Color(0xFFFFFFFF)
 
 
 @Composable
@@ -231,26 +230,34 @@ private fun AdditionalInfoGrid(state: ClimaEstado.Exitoso) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(
             text = "Información Adicional",
+            modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
-            color = colorTextPrimary
+            color = colorTextPrimary,
+            textAlign = TextAlign.Center,
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        Row(
+            modifier = Modifier.height(IntrinsicSize.Min),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).fillMaxHeight(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 InfoBox(
+                    modifier = Modifier.weight(1f),
                     label = "Visibilidad",
                     value = state.visibilidad,
                     description = state.visibilidadDesc
                 )
                 InfoBox(
+                    modifier = Modifier.weight(1f),
                     label = "Nubosidad",
                     value = state.nubosidad,
                     description = state.nubosidadDesc
                 )
                 InfoBox(
+                    modifier = Modifier.weight(1f),
                     label = "Temp. Máxima",
                     value = state.tempMaxHoy,
                     description = "Máxima de hoy"
@@ -261,17 +268,20 @@ private fun AdditionalInfoGrid(state: ClimaEstado.Exitoso) {
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 InfoBox(
+                    modifier = Modifier.weight(1f),
                     label = "Presión",
                     value = state.presion,
                     description = state.presionDesc
                 )
                 InfoBox(
+                    modifier = Modifier.weight(1f),
                     label = "Sol",
                     value = state.amanecer,
                     description = state.atardecer,
                     isSunTime = true
                 )
                 InfoBox(
+                    modifier = Modifier.weight(1f),
                     label = "Temp. Mínima",
                     value = state.tempMinHoy,
                     description = "Mínima de hoy"
@@ -284,17 +294,22 @@ private fun AdditionalInfoGrid(state: ClimaEstado.Exitoso) {
 
 @Composable
 private fun InfoBox(
+    modifier: Modifier,
     label: String,
     value: String,
     description: String,
     isSunTime: Boolean = false
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
+            .shadow(
+                elevation = 2.dp,
+                shape = RoundedCornerShape(12.dp)
+            )
             .clip(RoundedCornerShape(12.dp))
             .background(colorGridBackground)
-            .padding(16.dp)
+            .padding(16.dp),
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
