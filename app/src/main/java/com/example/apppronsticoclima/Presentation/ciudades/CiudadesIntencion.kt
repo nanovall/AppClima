@@ -1,7 +1,6 @@
 package com.example.apppronsticoclima.Presentation.ciudades
 
 import com.example.apppronsticoclima.Repository.modelos.Ciudad
-import kotlin.collections.emptyList
 
 sealed class CiudadesIntencion {
     data class Buscar( val nombre:String ) : CiudadesIntencion()

@@ -20,8 +20,8 @@ fun AppNavigation(navController: NavHostController) {
     ) {
         composable("Startup") {
             StartupScreen(navController=navController)
-
         }
+        composable("VistaBuscador") { CiudadesPage(navController) }
         composable(
             route = "VistaClima/{lat}/{lon}/{nombre}",
             arguments = listOf(
