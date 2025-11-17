@@ -397,6 +397,7 @@ private fun ShareButton(onClick: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
+                .padding(10.dp)
         ) {
             Text(
                 text = "Compartir pronóstico",

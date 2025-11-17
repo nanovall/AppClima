@@ -35,7 +35,7 @@ fun ClimaPage(
         onAction = { intencion ->
             when (intencion) {
                 ClimaIntencion.VolverAtras -> {
-                    navController.popBackStack()
+                    navController.navigate("VistaBuscador")
                 }
                 ClimaIntencion.CompartirPronostico -> {
                     //  Verificamos que el estado tenga datos
