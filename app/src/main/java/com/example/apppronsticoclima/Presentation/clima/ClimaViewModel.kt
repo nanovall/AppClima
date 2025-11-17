@@ -30,6 +30,7 @@ class ClimaViewModel(
             is ClimaIntencion.CompartirPronostico -> {
                 // TODO: Lógica para compartir
             }
+
             else -> {
             }
         }
@@ -85,13 +86,19 @@ class ClimaViewModel(
             formatearFecha(Date(it.dt * 1000L), "dd/MM")
         }.mapIndexed { index, forecast ->
             val fecha = Date(forecast.dt * 1000L)
+            val iconCode = forecast.weather.firstOrNull()?.icon ?: "01d"
+
+            val emoji = obtenerEmojiParaIcono(iconCode)
+
             ForecastDay(
                 id = index,
                 dia = formatearFecha(fecha, "EEE"),
                 fecha = formatearFecha(fecha, "dd MMM"),
                 descripcion = forecast.weather.firstOrNull()?.description?.capitalize() ?: "N/A",
                 tempMax = "${forecast.main.temp_max.roundToInt()}°",
-                tempMin = "${forecast.main.temp_min.roundToInt()}°"
+                tempMin = "${forecast.main.temp_min.roundToInt()}°",
+                iconEmoji = emoji
+
             )
         }.take(5)
     }
@@ -99,13 +106,14 @@ class ClimaViewModel(
     private fun formatearFecha(fecha: Date, formato: String = "EEEE, dd 'de' MMMM"): String {
         return SimpleDateFormat(formato, Locale("es", "ES")).format(fecha).capitalize()
     }
+
     private fun formatearHora(timestamp: Long): String {
         return SimpleDateFormat("hh:mm a", Locale("es", "ES")).format(Date(timestamp * 1000L))
     }
+
     private fun String.capitalize(): String {
         return this.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
     }
-
 
 
     private fun obtenerDescripcionNubosidad(porcentaje: Int): String {
@@ -128,9 +136,26 @@ class ClimaViewModel(
             else -> "Niebla"
         }
     }
+
+
+    /**
+     * Traduce un código de ícono de OpenWeatherMap a un Emoji.
+     */
+    private fun obtenerEmojiParaIcono(iconCode: String): String {
+        return when (iconCode.take(2)) {
+            "01" -> "☀️"
+            "02" -> "🌤️"
+            "03" -> "☁️"
+            "04" -> "☁️"
+            "09" -> "🌧️"
+            "10" -> "🌦️"
+            "11" -> "⛈️"
+            "13" -> "❄️"
+            "50" -> "🌫️"
+            else -> "❓"
+        }
+    }
 }
-
-
 class ClimaViewModelFactory(
     private val repositorio: Repositorio,
     private val lat: Float,

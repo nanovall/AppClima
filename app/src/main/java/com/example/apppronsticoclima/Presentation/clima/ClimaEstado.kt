@@ -41,5 +41,6 @@ data class ForecastDay(
     val fecha: String,
     val descripcion: String,
     val tempMax: String,
-    val tempMin: String
+    val tempMin: String,
+    val iconEmoji: String
 )

@@ -332,6 +332,15 @@ private fun ForecastItem(day: ForecastDay) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
+
+            Text(
+                text = day.iconEmoji,
+                fontSize = 32.sp,
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(colorGridBackground, RoundedCornerShape(8.dp)),
+                textAlign = TextAlign.Center
+            )
             Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(
