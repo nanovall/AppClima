@@ -5,5 +5,8 @@ import com.example.apppronsticoclima.Repository.modelos.Ciudad
 sealed class CiudadesIntencion {
     data class Buscar( val nombre:String ) : CiudadesIntencion()
     data class Seleccionar(val ciudad: Ciudad) : CiudadesIntencion()
+    object UsarGeolocalizacion : CiudadesIntencion()
+    object FalloDeGeolocalizacion : CiudadesIntencion()
+    data class NavegarAClimaConUbicacion(val lat: Float, val lon: Float) : CiudadesIntencion()
     object SetDefault : CiudadesIntencion()
 }

@@ -9,11 +9,18 @@ import androidx.lifecycle.viewModelScope
 import com.example.apppronsticoclima.Repository.Repositorio
 import com.example.apppronsticoclima.Repository.modelos.Clima
 import com.example.apppronsticoclima.Repository.modelos.ListForecast
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
+
+sealed interface ClimaEfecto {
+    object NavegarAtras : ClimaEfecto
+    data class Compartir(val texto: String) : ClimaEfecto
+}
 
 class ClimaViewModel(
     val repositorio: Repositorio,
@@ -24,14 +31,22 @@ class ClimaViewModel(
 
     var uiState by mutableStateOf<ClimaEstado>(ClimaEstado.Vacio)
 
+    private val _efecto = Channel<ClimaEfecto>()
+    val efecto = _efecto.receiveAsFlow()
+
     fun ejecutar(intencion: ClimaIntencion) {
         when (intencion) {
             is ClimaIntencion.CargarClima -> traerClimaYPronostico()
-            is ClimaIntencion.CompartirPronostico -> {
-                // TODO: Lógica para compartir
+            is ClimaIntencion.VolverAtras -> viewModelScope.launch {
+                _efecto.send(ClimaEfecto.NavegarAtras)
             }
-
-            else -> {
+            is ClimaIntencion.CompartirPronostico -> {
+                if (uiState is ClimaEstado.Exitoso) {
+                    val texto = crearTextoParaCompartir(uiState as ClimaEstado.Exitoso)
+                    viewModelScope.launch {
+                        _efecto.send(ClimaEfecto.Compartir(texto))
+                    }
+                }
             }
         }
     }
@@ -41,12 +56,31 @@ class ClimaViewModel(
         viewModelScope.launch {
             try {
                 val clima = repositorio.traerClima(lat = lat, lon = lon)
-                val pronostico = repositorio.traerPronostico(nombre = nombre)
+                val pronostico = if (nombre == "Mi Ubicación") {
+                    repositorio.traerPronostico(lat = lat, lon = lon)
+                } else {
+                    repositorio.traerPronostico(nombre = nombre)
+                }
                 uiState = mapClimaAEstado(clima, pronostico)
             } catch (exception: Exception) {
                 uiState = ClimaEstado.Error(exception.message ?: "Error desconocido")
             }
         }
+    }
+
+    private fun crearTextoParaCompartir(estado: ClimaEstado.Exitoso): String {
+        val builder = StringBuilder()
+        builder.append("¡Mira el pronóstico para ${estado.ciudad}!\n\n")
+        builder.append("Ahora: ${estado.descripcion}, ${estado.temperatura}\n\n")
+        builder.append("Pronóstico para los próximos 5 días:\n")
+
+        estado.pronostico.forEach { dia ->
+            builder.append(
+                "• ${dia.dia}, ${dia.fecha}: ${dia.descripcion} (${dia.tempMax} / ${dia.tempMin})\n"
+            )
+        }
+
+        return builder.toString()
     }
 
     private fun mapClimaAEstado(clima: Clima, pronostico: List<ListForecast>): ClimaEstado.Exitoso {

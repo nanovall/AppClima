@@ -6,25 +6,47 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
 import com.example.apppronsticoclima.Repository.Repositorio
 import com.example.apppronsticoclima.Repository.UserPreferences
 import com.example.apppronsticoclima.Repository.modelos.Ciudad
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+
+sealed interface CiudadesEfecto {
+    data class NavegarAClima(val lat: Float, val lon: Float, val nombre: String) : CiudadesEfecto
+    object PedirPermisoUbicacion : CiudadesEfecto
+}
 
 class CiudadesViewModel(
     val repositorio: Repositorio,
-    val navController: NavController,
     private val userPreferences: UserPreferences
 ) : ViewModel(){
 
     var uiState by mutableStateOf<CiudadesEstado>(CiudadesEstado.Vacio)
     var ciudades : List<Ciudad> = emptyList()
 
+    private val _efecto = Channel<CiudadesEfecto>()
+    val efecto = _efecto.receiveAsFlow()
+
     fun ejecutar(intencion: CiudadesIntencion){
         when(intencion){
             is CiudadesIntencion.Buscar -> buscar(nombre = intencion.nombre)
             is CiudadesIntencion.Seleccionar -> seleccionar(ciudad = intencion.ciudad)
+            is CiudadesIntencion.UsarGeolocalizacion -> {
+                uiState = CiudadesEstado.Cargando
+                viewModelScope.launch {
+                    _efecto.send(CiudadesEfecto.PedirPermisoUbicacion)
+                }
+            }
+            is CiudadesIntencion.FalloDeGeolocalizacion -> {
+                uiState = CiudadesEstado.Error("No se pudo obtener la ubicación. Asegúrate de que la localización esté activada.")
+            }
+            is CiudadesIntencion.NavegarAClimaConUbicacion -> {
+                viewModelScope.launch {
+                    _efecto.send(CiudadesEfecto.NavegarAClima(intencion.lat, intencion.lon, "Mi Ubicación"))
+                }
+            }
             CiudadesIntencion.SetDefault -> setDefault()
         }
     }
@@ -48,12 +70,13 @@ class CiudadesViewModel(
 
     private fun seleccionar(ciudad: Ciudad){
         userPreferences.guardarCiudadSeleccionada(ciudad)
-
-        val lat = ciudad.lat
-        val lon = ciudad.lon
-        val nombre = ciudad.name
-
-        navController.navigate("VistaClima/$lat/$lon/$nombre")
+        viewModelScope.launch {
+            _efecto.send(CiudadesEfecto.NavegarAClima(
+                lat = ciudad.lat,
+                lon = ciudad.lon,
+                nombre = ciudad.name
+            ))
+        }
     }
 
     private fun setDefault(){
@@ -64,13 +87,12 @@ class CiudadesViewModel(
 
 class CiudadesViewModelFactory(
     private val repositorio: Repositorio,
-    private val navController: NavController,
     private val userPreferences: UserPreferences
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(CiudadesViewModel::class.java)) {
-            return CiudadesViewModel(repositorio,navController, userPreferences) as T
+            return CiudadesViewModel(repositorio, userPreferences) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
