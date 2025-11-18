@@ -5,7 +5,7 @@ Aplicación "AppClima" - Segundo Parcial de Aplicaciones Móviles 2025.
 Este proyecto es el resultado del trabajo en equipo:
 - Nicolás Savoia - [@SavNico](https://github.com/SavNico)
 - Lorenzo Segada López - [@lorenzosegada](https://github.com/lorenzosegada)
-- Francisco Acuña - [@frantureco]
+- Francisco Acuña - [@frantureco](https://github.com/frantureco)
 - Mariano Matias Valle - [@nanovall](https://github.com/nanovall)
 - Ornella Soledad Leiva Fioravanti - [@ornellaleivaistea](https://github.com/ornellaleivaistea) / [@OrnellaLF](https://github.com/OrnellaLF)
 
