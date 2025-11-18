@@ -16,7 +16,7 @@ import kotlinx.serialization.json.Json
 class RepositorioApi : Repositorio {
 
     private val apiKey = "5f166bf1f34f7539f220480d598a76eb"
-    private val cliente = HttpClient(){
+    private val cliente = HttpClient{
         install(ContentNegotiation){
             json(Json {
                 ignoreUnknownKeys = true
@@ -69,5 +69,21 @@ class RepositorioApi : Repositorio {
             throw Exception()
         }
 
+    }
+
+    override suspend fun traerPronostico(lat: Float, lon: Float): List<ListForecast> {
+        val respuesta = cliente.get("https://api.openweathermap.org/data/2.5/forecast"){
+            parameter("lat",lat)
+            parameter("lon",lon)
+            parameter("units","metric")
+            parameter("appid",apiKey)
+            parameter("lang", "es")
+        }
+        if (respuesta.status == HttpStatusCode.OK){
+            val forecast = respuesta.body<ForecastDTO>()
+            return forecast.list
+        }else{
+            throw Exception()
+        }
     }
 }

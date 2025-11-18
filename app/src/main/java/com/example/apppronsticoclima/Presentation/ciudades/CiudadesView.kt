@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 
 private val colorScreenBackground = Color(0xFFF0F4F8)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CiudadesView(
     state: CiudadesEstado,
@@ -55,33 +56,59 @@ fun CiudadesView(
                     .padding(24.dp)
             ) {
                 Text(
-                    text = "Seleccionar Ciudad",
+                    text = "App Clima",
                     color = Color.White,
-                    fontSize = 20.sp,
+                    fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text(
+                    text = "Busca una ciudad para empezar",
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = 16.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
                 )
 
                 // Buscador (Input equivalent)
-                InputBuscarCiudades(
-                    onAction = onAction,
-                    currentValue = searchTerm,
-                    onValueChange = { newString ->
-                        searchTerm = newString
+                OutlinedTextField(
+                    value = searchTerm,
+                    onValueChange = {
+                        searchTerm = it
+                        if (it.isNotBlank()) {
+                            onAction(CiudadesIntencion.Buscar(it))
+                        } else {
+                            onAction(CiudadesIntencion.SetDefault)
+                        }
                     },
+                    label = { Text("Introduce una ciudad...", color = Color.White.copy(alpha = 0.8f)) },
+                    leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Buscar", tint = Color.White.copy(alpha = 0.8f)) },
+                    trailingIcon = {
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                            tooltip = { PlainTooltip { Text("Usar mi ubicación") } },
+                            state = rememberTooltipState()
+                        ) {
+                            IconButton(onClick = { onAction(CiudadesIntencion.UsarGeolocalizacion) }) {
+                                Icon(Icons.Default.LocationOn, contentDescription = "Usar mi ubicación", tint = Color.White)
+                            }
+                        }
+                    },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.White,
+                        unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
+                        focusedLabelColor = Color.White,
+                        unfocusedLabelColor = Color.White.copy(alpha = 0.5f),
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        cursorColor = Color.White,
+                        focusedContainerColor = Color.White.copy(alpha = 0.2f),
+                        unfocusedContainerColor = Color.White.copy(alpha = 0.1f)
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
-
-                // Botón de Geolocalización
-//                BotonGeolocalizacion(
-//                    isLocating,
-//                    onAction,
-//                    modifier = Modifier
-//                      .fillMaxWidth()
-//                      .padding(top = 12.dp)
-//                      .clip(RoundedCornerShape(8.dp))
-//                )
 
                 LocationError(
                     Error = locationError,
@@ -110,42 +137,6 @@ fun CiudadesView(
 }
 
 @Composable
-fun InputBuscarCiudades(
-    onAction: (CiudadesIntencion) -> Unit,
-    currentValue: String,
-    onValueChange: (String) -> Unit,
-    modifier: Modifier
-) {
-
-    OutlinedTextField(
-        value = currentValue,
-        onValueChange = { newString ->
-            onValueChange(newString)
-            if (newString != "") {
-                onAction(CiudadesIntencion.Buscar(newString))
-            } else {
-                onAction(CiudadesIntencion.SetDefault)
-            }
-        },
-        label = { Text("Buscar ciudad...", color = Color.White.copy(alpha = 0.8f)) },
-        leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Buscar", tint = Color.White.copy(alpha = 0.8f)) },
-        shape = RoundedCornerShape(8.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color.White,
-            unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
-            focusedLabelColor = Color.White,
-            unfocusedLabelColor = Color.White.copy(alpha = 0.5f),
-            focusedTextColor = Color.White,
-            unfocusedTextColor = Color.White,
-            cursorColor = Color.White,
-            focusedContainerColor = Color.White.copy(alpha = 0.2f),
-            unfocusedContainerColor = Color.White.copy(alpha = 0.1f)
-        ),
-        modifier = modifier
-    )
-}
-
-@Composable
 fun LocationError(
     Error: Boolean,
     state: CiudadesEstado,
@@ -163,28 +154,6 @@ fun LocationError(
         }
     }
 }
-
-//@Composable
-//fun BotonGeolocalizacion(
-//    isLocating: Boolean,
-//    onAction: (CiudadesIntencion) -> Unit,
-//    modifier: Modifier
-//) {
-//    Button(
-//        onClick = { onAction(CiudadesIntencion.UsarUbicacionActual) },
-//        enabled = !isLocating,
-//        shape = RoundedCornerShape(8.dp),
-//        colors = ButtonDefaults.buttonColors(
-//            containerColor = Color.White.copy(alpha = 0.2f),
-//            contentColor = Color.White
-//        ),
-//        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
-//        modifier = modifier
-//    ) {
-//        Icon(Icons.Filled.LocationOn, contentDescription = "Ubicación", modifier = Modifier.size(20.dp).padding(end = 4.dp))
-//        Text(if (isLocating) "Buscando ubicación..." else "Usar mi ubicación", fontWeight = FontWeight.SemiBold)
-//    }
-//}
 
 @Composable
 fun ContenedorListaCiudades(

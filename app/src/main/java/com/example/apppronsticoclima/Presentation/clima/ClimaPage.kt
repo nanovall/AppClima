@@ -1,10 +1,11 @@
 package com.example.apppronsticoclima.Presentation.Clima
 
 import android.content.Intent
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.example.apppronsticoclima.Repository.RepositorioApi
 
@@ -15,7 +16,6 @@ fun ClimaPage(
     lon: Float,
     nombre: String
 ) {
-    //  Obtenemos el Contexto de Android.
     val context = LocalContext.current
     val viewModel: ClimaViewModel = viewModel(
         factory = ClimaViewModelFactory(
@@ -25,58 +25,47 @@ fun ClimaPage(
             nombre = nombre
         )
     )
+
     LaunchedEffect(key1 = Unit) {
         viewModel.ejecutar(ClimaIntencion.CargarClima)
-    }
 
-    val state = viewModel.uiState
-    ClimaView(
-        state = state,
-        onAction = { intencion ->
-            when (intencion) {
-                ClimaIntencion.VolverAtras -> {
-                    navController.navigate("VistaBuscador")
-                }
-                ClimaIntencion.CompartirPronostico -> {
-                    //  Verificamos que el estado tenga datos
-                    if (state is ClimaEstado.Exitoso) {
-                        //  Creamos el texto que queremos compartir
-                        val textoParaCompartir =
-                            crearTextoParaCompartir(state)
-                        //  Creamos la intención de tipo ENVIAR
-                        val sendIntent = Intent().apply {
-                            action = Intent.ACTION_SEND
-                            putExtra(Intent.EXTRA_TEXT, textoParaCompartir)
-                            type = "text/plain"
+        viewModel.efecto.collect { efecto ->
+            when (efecto) {
+                is ClimaEfecto.NavegarAtras -> {
+                    // Comprueba si hay una pantalla anterior en la pila de navegación.
+                    if (navController.previousBackStackEntry != null) {
+                        // Si la hay, simplemente volvemos.
+                        navController.popBackStack()
+                    } else {
+                        // Si no la hay, navegamos a la pantalla de búsqueda como nueva raíz.
+                        navController.navigate("VistaBuscador") {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
                         }
-                        //  Creamos el menú "chooser" que se abre
-                        val shareIntent = Intent.createChooser(
-                            sendIntent,
-                            "Compartir pronóstico con..."
-                        )
-                        //  Lanzamos la actividad de compartir
-                        context.startActivity(shareIntent)
                     }
                 }
-                else -> {
-                    viewModel.ejecutar(intencion)
+                is ClimaEfecto.Compartir -> {
+                    val sendIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        putExtra(Intent.EXTRA_TEXT, efecto.texto)
+                        type = "text/plain"
+                    }
+                    val shareIntent = Intent.createChooser(
+                        sendIntent,
+                        "Compartir pronóstico con..."
+                    )
+                    context.startActivity(shareIntent)
                 }
             }
         }
-    )
-}
-
-private fun crearTextoParaCompartir(estado: ClimaEstado.Exitoso): String {
-    val builder = StringBuilder()
-    builder.append("¡Mira el pronóstico para ${estado.ciudad}!\n\n")
-    builder.append("Ahora: ${estado.descripcion}, ${estado.temperatura}\n\n")
-    builder.append("Pronóstico para los próximos 5 días:\n")
-
-    estado.pronostico.forEach { dia ->
-        builder.append(
-            "• ${dia.dia}, ${dia.fecha}: ${dia.descripcion} (${dia.tempMax} / ${dia.tempMin})\n"
-        )
     }
 
-    return builder.toString()
+    ClimaView(
+        state = viewModel.uiState,
+        onAction = { intencion ->
+            viewModel.ejecutar(intencion)
+        }
+    )
 }

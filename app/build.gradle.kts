@@ -80,4 +80,9 @@ dependencies {
     implementation("com.squareup.moshi:moshi:1.15.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+
+    // Mocking library for tests
+    testImplementation("io.mockk:mockk:1.13.11")
+
 }
