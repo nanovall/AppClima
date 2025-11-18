@@ -42,7 +42,7 @@ data class Clouds(
 )
 @Serializable
 data class Sys(
-    val country: String,
+    val country: String? = null, // Hecho opcional para evitar el crash
     val sunrise: Long,
     val sunset: Long
 )
