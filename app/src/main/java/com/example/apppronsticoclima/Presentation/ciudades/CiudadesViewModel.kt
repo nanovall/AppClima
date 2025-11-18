@@ -26,6 +26,9 @@ class CiudadesViewModel(
     var uiState by mutableStateOf<CiudadesEstado>(CiudadesEstado.Vacio)
     var ciudades : List<Ciudad> = emptyList()
 
+    // Variable privada para guardar el estado antes de la geolocalización
+    private var stateBeforeGeoloc: CiudadesEstado? = null
+
     private val _efecto = Channel<CiudadesEfecto>()
     val efecto = _efecto.receiveAsFlow()
 
@@ -34,18 +37,25 @@ class CiudadesViewModel(
             is CiudadesIntencion.Buscar -> buscar(nombre = intencion.nombre)
             is CiudadesIntencion.Seleccionar -> seleccionar(ciudad = intencion.ciudad)
             is CiudadesIntencion.UsarGeolocalizacion -> {
+                // Guardamos el estado actual y luego mostramos el indicador de carga.
+                stateBeforeGeoloc = uiState
                 uiState = CiudadesEstado.Cargando
                 viewModelScope.launch {
                     _efecto.send(CiudadesEfecto.PedirPermisoUbicacion)
                 }
             }
             is CiudadesIntencion.FalloDeGeolocalizacion -> {
-                uiState = CiudadesEstado.Error("No se pudo obtener la ubicación. Asegúrate de que la localización esté activada.")
+                // Si falla, restauramos el estado anterior.
+                uiState = stateBeforeGeoloc ?: CiudadesEstado.Error("No se pudo obtener la ubicación. Asegúrate de que la localización esté activada.")
+                stateBeforeGeoloc = null
             }
             is CiudadesIntencion.NavegarAClimaConUbicacion -> {
                 viewModelScope.launch {
                     _efecto.send(CiudadesEfecto.NavegarAClima(intencion.lat, intencion.lon, "Mi Ubicación"))
                 }
+                // Al navegar, restauramos el estado anterior para que la lista no se borre.
+                uiState = stateBeforeGeoloc ?: CiudadesEstado.Vacio
+                stateBeforeGeoloc = null
             }
             CiudadesIntencion.SetDefault -> setDefault()
         }
